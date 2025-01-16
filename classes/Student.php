@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . "/User.php";
-
+// session_start();
 
 class Student extends User
 {

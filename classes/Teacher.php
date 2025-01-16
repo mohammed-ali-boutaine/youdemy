@@ -1,4 +1,5 @@
 <?php 
+
 // require_once __DIR__ . "trait/trait_register";
 
 class Teacher extends User {

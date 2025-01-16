@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/Database.php";
+
 abstract class User
 {
 
@@ -99,7 +100,15 @@ abstract class User
 
         return null; // User not found
     }
+    static function isAuth($token){
 
+    }
+    static function isStudent(){
+
+    }
+    static function isAdmin($token){
+
+    }
     static function findByEmail(string $email): array
     {
         try {
