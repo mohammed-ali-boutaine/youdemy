@@ -21,11 +21,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $user = User::login($email, $password); // Assuming User::authenticate handles password verification
-    if($user["ok"]){
-        redirect("/pages/dashboard/index.php");
-    }else{
-        $error = $user["message"];
-    }
+    print_r($user);
+    // if($user["ok"]){
+    //     redirect("/pages/dashboard/index.php");
+    // }else{
+    //     $error = $user["message"];
+    // }
 }
 ?>
 

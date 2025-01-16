@@ -47,8 +47,10 @@ function tagHandler($content)
 }
 
 
-function requireRole($role)
+function requireRole($role="student")
 {
+    Auth::init(); // Initialize the database connection
+
     if (!Auth::isAuth()) {
         redirect("/pages/login.php");
     }

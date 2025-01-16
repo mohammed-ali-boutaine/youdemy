@@ -25,7 +25,7 @@ class Student extends User
     public function getId(){
         return $this->id;
     }
-    public function save()
+    private function save()
     {
 
         // get connection

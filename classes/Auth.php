@@ -17,7 +17,7 @@ class Auth {
             "SELECT ul.user_id, ul.login_time
              FROM user_login ul
              JOIN users u ON ul.user_id = u.id
-             WHERE ul.token = :token"
+             WHERE ul.token = :token and ul.is_active=1"
         );
 
         $stmt->execute(['token' => $token]);

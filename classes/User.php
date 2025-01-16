@@ -187,15 +187,43 @@ abstract class User
             ];
         }
     }
-    function logout(): bool
+    public static function logout() : array
     {
-        if (isset($_SESSION["user"])) {
-            $_SESSION = [];
-            session_unset();
-            session_destroy();
-            setcookie("auth_token", "", time() - 3600, "/");
-            return true;
+        try {
+            // Start the session if not already started
+            if (session_status() == PHP_SESSION_NONE) {
+                session_start();
+            }
+
+            // Check if cookies exist
+            if (isset($_COOKIE['auth_token'])) {
+
+                $pdo = Database::getInstance()->getConnection();
+                $auth_token = $_COOKIE['auth_token'];
+                // Prepare the statement to update the is_active status to 0
+                $stmt = $pdo->prepare(
+                    "UPDATE user_login 
+                     SET is_active = 0, logout_time = NOW() 
+                     WHERE token = :token"
+                );
+
+                // Execute the query
+                $stmt->execute(['token' => $auth_token]);
+
+                // Clear the session
+                $_SESSION = [];
+                session_unset();
+                session_destroy();
+
+                // Clear the cookies
+                setcookie("auth_token", "", time() - 3600, "/", "", true, true);
+
+                return ['status' => 'success', 'message' => 'Logout successfully', 'ok' => true];
+            } else {
+                return ['status' => 'success', 'message' => 'Error, No token found', 'ok' => false];
+            }
+        } catch (PDOException $e) {
+            return ['status' => 'error', 'message' => 'Failed to logout: ' . $e->getMessage(), 'ok' => false];
         }
-        return false;
     }
 }
