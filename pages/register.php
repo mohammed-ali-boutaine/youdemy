@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $isValid = false;
 
           // email validation
-     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+     } elseif (!validate_email($email)) {
           $error = "Invalid email format.";
           $isValid = false;
      }
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $uniqueName = uniqid('user_', true) . '.' . $fileType;
 
           // Construct the full path for the file (only storing the name and directory)
-          $fileName =$uploadDir . $uniqueName;
+          $fileName = $uploadDir . $uniqueName;
 
           // Allow only image file types
           $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
@@ -63,8 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
      if ($isValid) {
-          // $conn = new Database();
-          // $auth = new Auth($conn);
+
           $response;
           if ($role == "teacher") {
                $response = Teacher::register($username, $email, $password, $uniqueName);
@@ -73,35 +72,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           }
 
           if ($response) {
-               header('Location: /pages/dashboard/index.php');
-               exit();
-           } else {
+               redirect("/pages/dashboard/index.php");
+              
+          } else {
                $error = "Registration failed. Please try again.";
-           }
+          }
      }
 
-
-
-
-
-
-
-
-
-     // end if
 }
 
 ?>
-
-
-
-
-
-
-
-
-
-
 
 
 <!DOCTYPE html>
