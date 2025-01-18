@@ -1,15 +1,26 @@
 <?php
+session_start();
+
+
 require_once "../functions/helper.php";
 require_once "../classes/Student.php";
 require_once "../classes/Teacher.php";
 require_once "../classes/User.php";
-session_start();
 
-// Handle login logic here (optional)
-$error = ''; // Placeholder for error messages, if needed
+if (empty($_SESSION['csrf_token'])) {
+     $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // 32-byte random token
+}
+
+$csrf_token = $_SESSION['csrf_token'];
+
+$error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
+     // csrf protection
+     if (empty($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+          $error = "Invalid CSRF token.";
+          $isValid = false;
+     }
      // input validation
      $username = sanitize_input($_POST["username"]);
      $email = sanitize_input($_POST["email"]);
@@ -73,12 +84,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
           if ($response) {
                redirect("/pages/dashboard/index.php");
-              
           } else {
                $error = "Registration failed. Please try again.";
           }
      }
-
 }
 
 ?>
@@ -116,6 +125,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                               <?= htmlspecialchars($error) ?>
                          <?php endif; ?>
                     </div>
+                    <!-- CSRF Token -->
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
 
 
                     <label for="username">Username</label>
