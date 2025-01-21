@@ -678,3 +678,104 @@ footer .copy-privacy {
     background-color: var(--body-background);
   }
 }
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.course-card {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+}
+
+.course-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.course-content {
+  padding: 20px;
+}
+
+.course-content h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.4em;
+}
+
+.course-content p {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.course-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid #007bff;
+  color: #007bff;
+}
+
+.btn-outline:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+  .course-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* // teacher dashboard  */
+

@@ -19,6 +19,7 @@
                 <a href="/pages/contact.php">Contact </a>
             </div>
 
+            
             <div class="auth">
                 <a href="/pages/login.php"  class=" after-animation">Login <i class="fa-solid fa-arrow-right"></i></a>
                 <a href="/pages/register.php"  class="active after-animation">Create Account <i class="fa-solid fa-arrow-right"></i></a>

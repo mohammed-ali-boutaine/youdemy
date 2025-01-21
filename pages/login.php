@@ -7,12 +7,16 @@ require_once "../classes/Teacher.php";
 require_once "../classes/Student.php";
 require_once "../classes/Admin.php";
 
+// if($isAuth){
+
+// }
 if (empty($_SESSION['csrf_token'])) {
      $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // 32-byte random token
 }
 
 $csrf_token = $_SESSION['csrf_token'];
 
+$isValid=true;
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -37,13 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
      if($isValid){
           $user = User::login($email, $password); // Assuming User::authenticate handles password verification
-     }
-     //     print_r($user);
-     // if($user["ok"]){
-     //     redirect("/pages/dashboard/index.php");
-     // }else{
-     //     $error = $user["message"];
-     // }
+     if($user["ok"]){
+         redirect("/pages/dashboard/index.php");
+     }else{
+         $error = $user["message"];
+     }   
+  }
+
 }
 ?>
 

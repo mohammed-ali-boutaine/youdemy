@@ -9,6 +9,7 @@ abstract class User
     protected $email;
     protected $password;
     protected $picture_path;
+    protected $role;
 
     // Constructor to initialize the properties
     function __construct($id, $username, $email, $password, $picture_path)
@@ -20,7 +21,12 @@ abstract class User
         $this->picture_path = $picture_path;
     }
 
-
+    public function getUser(){
+        return ["id" => $this->id , "username" => $this->username , "email" => $this->email ,"picture_path" => $this->picture_path  ];
+    }
+    public function getRole(){
+        return $this->role;
+    }
     public function getId()
     {
         return $this->id;

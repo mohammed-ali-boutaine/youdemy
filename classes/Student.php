@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . "/User.php";
-// session_start();
 
 class Student extends User
 {
@@ -9,8 +8,8 @@ class Student extends User
 
     private $enrolledCoures = [];
 
-    private $role;
-    private $is_active;
+    protected $role; 
+        private $is_active;
 
     public function __construct($id, $username, $email, $password, $picture_path)
     {
@@ -94,6 +93,8 @@ class Student extends User
 
         $_SESSION["user"] = $user;
         parent::generateToken($user->getId());
+        return ['status' => 'succes', 'message' => "register succesfly", "ok" => true];
+
     }
 
 

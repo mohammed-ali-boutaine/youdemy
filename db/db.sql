@@ -40,26 +40,29 @@ CREATE TABLE category (
 
 -- Course Table
 CREATE TABLE course (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(200) NOT NULL,
-    description TEXT,
-    content TEXT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    image VARCHAR(255) DEFAULT NULL,
+    category_id INT ,
     teacher_id INT NOT NULL,
-    category_id INT NOT NULL,
+    type ENUM('pdf', 'video', 'text') NOT NULL,
+    link VARCHAR(255) DEFAULT NULL,
+    content TEXT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (teacher_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE SET NULL
+    FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE SET null,
+    FOREIGN KEY (teacher_id) REFERENCES users(id)
 );
 
 -- Enroll Table (Many-to-Many: Students and Courses)
 CREATE TABLE enroll (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
     course_id INT NOT NULL,
     enroll_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (course_id) REFERENCES course(id) ON DELETE CASCADE
+    FOREIGN KEY (student_id) REFERENCES users(id),
+    FOREIGN KEY (course_id) REFERENCES course(id)
 );
 
 -- Tags Table
@@ -70,12 +73,13 @@ CREATE TABLE tags (
 
 -- Course_Tag Table (Many-to-Many: Courses and Tags)
 CREATE TABLE course_tag (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     tag_id INT NOT NULL,
     course_id INT NOT NULL,
-    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
-    FOREIGN KEY (course_id) REFERENCES course(id) ON DELETE CASCADE
+    FOREIGN KEY (tag_id) REFERENCES tags(id),
+    FOREIGN KEY (course_id) REFERENCES course(id)
 );
+
 
 
 

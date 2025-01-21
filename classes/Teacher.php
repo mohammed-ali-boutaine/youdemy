@@ -63,6 +63,10 @@ class Teacher extends User {
     }
     static public function register($username, $email, $password, $picture_path)
     {
+
+        try{
+
+      
        // if user exists show message
         $response = self::findByEmail($email);
         if ($response["ok"]) {
@@ -84,6 +88,12 @@ class Teacher extends User {
         $_SESSION["user"] = $user;
 
         self::generateToken($user->getId());
+
+        return ['status' => 'success', 'message' => 'teacher created succsflly', "ok" => true];
+    }catch(PDOException $e){
+        return ['status' => 'error', 'message' => 'Error : ' . $e->getMessage(), 'ok' => false];
+  
+    }
     }
 }
 ?>

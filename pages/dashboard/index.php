@@ -1,17 +1,28 @@
 <?php 
-// require_once "/classes/Auth.php";
+require_once "../../classes/Auth.php";
 require_once "../../functions/helper.php";
-// $isAuth = Auth::isStudent();
+require_once "../../classes/User.php"; 
+require_once "../../classes/Teacher.php"; 
+require_once "../../classes/Admin.php"; 
+require_once "../../classes/Student.php"; 
 
-// requireRole("student");
+
+Auth::init();
+$isAuth = Auth::isAuth();
 
 session_start();
-$user = $_SESSION["user"];
-echo "<pre>";
-print_r($user);
-echo "</pre>";
+// echo $isAuth? "auth": "no";
+
+if($isAuth){
+    $user = $_SESSION["user"];
+    $role = $user->getRole();
+    redirect("./$role.php");
+}else{
+    redirect("/pages/login.php");
+}
+echo $user->getRole();
 
 ?>
-<form method="POST" action="./inc/logout.php">
+<!-- <form method="POST" action="./inc/logout.php">
     <button type="submit">Logout</button>
-</form>
+</form> -->

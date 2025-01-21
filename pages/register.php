@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
      // Profile Image Handling
      if (!empty($_FILES['profile_image']['name'])) {
-          $uploadDir = "/public/uploads/users/"; // Folder to store uploaded images
+          $uploadDir = $_SERVER['DOCUMENT_ROOT'] . "/public/uploads/users/"; // Folder to store uploaded images
           $fileType = pathinfo($_FILES["profile_image"]["name"], PATHINFO_EXTENSION);
           $uniqueName = uniqid('user_', true) . '.' . $fileType;
 
@@ -82,10 +82,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                $response = Student::register($username, $email, $password, $uniqueName);
           }
 
-          if ($response) {
+          if ($response["ok"]) {
                redirect("/pages/dashboard/index.php");
           } else {
-               $error = "Registration failed. Please try again.";
+               $error = $response["message"];
           }
      }
 }
