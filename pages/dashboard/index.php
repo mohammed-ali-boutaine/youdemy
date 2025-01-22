@@ -16,7 +16,7 @@ session_start();
 if($isAuth){
     $user = $_SESSION["user"];
     $role = $user->getRole();
-    redirect("./$role.php");
+    redirect("./$role/index.php");
 }else{
     redirect("/pages/login.php");
 }
