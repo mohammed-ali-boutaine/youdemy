@@ -22,7 +22,7 @@ function tagHandler($content)
 {
 
     // content example
-    // $string = "hello this is a post about #coding and #programming";
+    // $content = "hello this is a post about #coding and #programming";
     $tags = [];
     $words = explode(" ", $content);
     for ($i = 0; $i < sizeof($words); $i++) {

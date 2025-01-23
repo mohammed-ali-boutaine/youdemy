@@ -24,6 +24,9 @@ abstract class User
     public function getUser(){
         return ["id" => $this->id , "username" => $this->username , "email" => $this->email ,"picture_path" => $this->picture_path  ];
     }
+    public function getUsername(){
+        return $this->username;
+    }
     public function getRole(){
         return $this->role;
     }

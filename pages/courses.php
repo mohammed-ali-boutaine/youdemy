@@ -92,7 +92,7 @@ $total_pages = ceil($total / $limit);
     .search-bar button {
         padding: 10px 20px;
         margin-left: 10px;
-        background-color: blue;
+        background-color: #007bff;
         color: white;
         border: none;
         border-radius: 4px;
@@ -151,7 +151,7 @@ $total_pages = ceil($total / $limit);
         </div>
 
     </div>
-
+   
     <!-- Pagination links -->
     <div class="pagination">
         <?php
@@ -161,6 +161,11 @@ $total_pages = ceil($total / $limit);
         }
         ?>
     </div>
+
+
+    <?php
+     include "./inc/footer.php";
+     ?>
     <script>
     // JavaScript function to handle redirection
     function redirectToLogin() {

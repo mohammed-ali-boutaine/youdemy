@@ -1,62 +1,229 @@
-<?php 
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/classes/Course.php';
+require_once  $_SERVER['DOCUMENT_ROOT'] .'/classes/Auth.php';
+require_once  $_SERVER['DOCUMENT_ROOT'] .'/classes/User.php';
 
+require_once  $_SERVER['DOCUMENT_ROOT'] .'/classes/Teacher.php';
+require_once  $_SERVER['DOCUMENT_ROOT'] .'/classes/Student.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/classes/Category.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/classes/Database.php';
 
-require_once $_SERVER['DOCUMENT_ROOT'] ."/classes/Auth.php";
-require_once $_SERVER['DOCUMENT_ROOT'] ."/classes/User.php";
-require_once $_SERVER['DOCUMENT_ROOT'] ."/classes/Student.php";
-require_once $_SERVER['DOCUMENT_ROOT'] ."/classes/Course.php";
-require_once $_SERVER['DOCUMENT_ROOT'] ."/classes/Category.php";
-require_once $_SERVER['DOCUMENT_ROOT'] ."/functions/helper.php";
 
 Auth::init();
 $isAuth = Auth::isStudent();
+
 session_start();
-if (!$isAuth) {
-    redirect("../../login.php");
+
+if($isAuth){
+     $user = $_SESSION["user"];
+ }else{
+     redirect("/pages/login.php");
+ }
+ $user = $user->getUser();
+ $teacherId = $user["id"];
+
+
+// Get search parameters
+$searchText = isset($_GET['search']) ? trim($_GET['search']) : '';
+$categoryId = isset($_GET['category']) ? (int)$_GET['category'] : null;
+
+if($searchText || $categoryId){
+    $courses = Course::searchCourses($categoryId, $searchText);
+    $total = count($courses);
+
+}else{
+
+// Fetch all courses
+$courses = Course::getAllCourses();
+$total = count($courses);
 }
-$user = $_SESSION["user"];
-$user = $user->getUser();
-$studentId = $user["id"];
 
-// $studentId = $_SESSION['user_id'];
-$pdo = Database::getInstance()->getConnection();
+$categories = Category::getAllCategories();
 
-// Get student information
-$stmt = $pdo->prepare("SELECT * FROM users WHERE id = :student_id");
-$stmt->execute([':student_id' => $studentId]);
-$student = $stmt->fetch(PDO::FETCH_ASSOC);
+// Pagination parameters
+$limit = 9; // Number of records per page
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$page = max($page, 1); // Ensure page number is at least 1
+$offset = ($page - 1) * $limit; // Calculate offset
 
-// Get enrolled courses with progress
-$stmt = $pdo->prepare("
-    SELECT 
-        c.*,
-        e.enroll_at,
-        u.username as teacher_name,
-        cat.name as category_name
-    FROM course c
-    JOIN enroll e ON c.id = e.course_id
-    JOIN users u ON c.teacher_id = u.id
-    JOIN category cat ON c.category_id = cat.id
-    WHERE e.student_id = :student_id
-    ORDER BY e.enroll_at DESC
-");
-$stmt->execute([':student_id' => $studentId]);
-$enrolledCourses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Slice the array for the current page
+$currentPageCourses = array_slice($courses, $offset, $limit);
+$total_pages = ceil($total / $limit);
 
-// Get recent activities
-// $stmt = $pdo->prepare("
-//     SELECT 
-//         'lesson_completion' as activity_type,
-//         l.title as lesson_title,
-//         c.description as course_name,
-//         cl.completion_date as activity_date
-//     FROM completed_lessons cl
-//     JOIN lessons l ON cl.lesson_id = l.id
-//     JOIN courses c ON l.course_id = c.id
-//     WHERE cl.student_id = :student_id
-//     ORDER BY cl.completion_date DESC
-//     LIMIT 5
-// ");
-// $stmt->execute([':student_id' => $studentId]);
-// $recentActivities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Courses</title>
+    <link rel="stylesheet" href="/public/css/teacher.css">
+
+    <link rel="stylesheet" href="/public/css/style.css">
+    <!-- google font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=REM:ital,wght@0,100;0,200;0,400;0,500;0,700;1,600&display=swap"
+        rel="stylesheet" /> <!--  font awsome link -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer" />
+    <style>
+       .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .pagination a {
+        margin: 0 5px;
+        padding: 5px 10px;
+        text-decoration: none;
+        color: blue;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .pagination a.active {
+        font-weight: bold;
+        text-decoration: underline;
+        color: white;
+        background-color: violet;
+    }
+
+    /* Search bar styling */
+    .search-bar {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .search-bar input[type="text"] {
+        width: 300px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .search-bar button {
+        padding: 10px 20px;
+        margin-left: 10px;
+        background-color: blue;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .search-bar button:hover {
+        background-color: darkblue;
+    }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+        <div class="logo">
+            <img src="/public/images/youdemy_logo.png" style="width: 100px;height:60px" alt="Logo" class="logo-img">
+        </div>
+        <ul class="nav-links">
+            <li><a href="./index.php" class="active">Courses</a></li>
+            <li><a href="./mes_courses.php">Mes Courses</a></li>
+            <!-- <li><a href="./aa.php">Analytiaacs</a></li> -->
+        </ul>
+        <div class="profile-section">
+            <img src=<?= "/public/uploads/users/" . $user["picture_path"] ?> alt="Profile" class="profile-img">
+            <div class="profile-dropdown">
+                <button class="profile-dropdown-btn"><?= $user["username"] ?> <i class="fas fa-caret-down"></i></button>
+                <div class="profile-dropdown-content">
+                    <a id="logout_btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+       <div class="container">
+        <h1>Available Courses</h1>
+            <!-- Search Bar -->
+    <div class="search-bar">
+    <form method="GET" action="">
+            <select name="category">
+                <option value="">All Categories</option>
+                <?php
+                   foreach ($categories as $category) {
+                    $selected = ($category['id'] == $categoryId) ? 'selected' : '';
+                    echo "<option value='{$category['id']}' $selected>" . htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8') . "</option>";
+                }
+                ?>
+            </select>
+            <input type="text" name="search" placeholder="Search courses..." value="<?php echo htmlspecialchars($searchText, ENT_QUOTES, 'UTF-8'); ?>">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+        <div class="course-grid">
+
+            <?php
+            // Dynamically generate course cards
+            if (!empty($currentPageCourses)) {
+                foreach ($currentPageCourses as $course) {
+                    echo '<div class="course-card">';
+                    echo '<img src="/public/uploads/courses/' . htmlspecialchars($course->getImage(), ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($course->getTitle(), ENT_QUOTES, 'UTF-8') . '" class="course-image">';
+                    echo '<div class="course-content">';
+                    echo '<h2>' . htmlspecialchars($course->getTitle(), ENT_QUOTES, 'UTF-8') . '</h2>';
+                    echo '<p>' . htmlspecialchars($course->getDescription(), ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '<div class="course-actions">';
+                    echo '<button class="btn btn-outline" onclick="window.location.href=\'view_course.php?id=' . $course->getId() . '\'">View Details</button>';
+                    echo '<button class="btn btn-primary" onclick="window.location.href=\'enroll_course.php?id=' . $course->getId() . '\'">Enroll</button>';
+                    echo '</div>';
+                    echo '</div>';
+                    echo '</div>';
+                }
+            } else {
+                echo "<p>No courses found.</p>";
+            }
+            ?>
+        </div>
+
+    </div>
+
+    <!-- Pagination links -->
+    <div class="pagination">
+        <?php
+        for ($i = 1; $i <= $total_pages; $i++) {
+            $class = ($i == $page) ? "class='active'" : "";
+            echo "<a href='?page=$i' $class>$i</a> ";
+        }
+        ?>
+    </div>
+    // JavaScript function to handle redirection
+    <script>
+        document.getElementById('logout_btn').addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent the default action
+
+            fetch('../inc/logout.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '../login.php'; // Redirect to login page after logout
+                    } else {
+                        console.error('Logout failed');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+</script>
+</body>
+
+</html>

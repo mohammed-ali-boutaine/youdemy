@@ -83,10 +83,51 @@ abstract class Course
      }
 
 
+     public static function getById($id)
+     {
+          $pdo = Database::getInstance()->getConnection();
+          $stmt = $pdo->prepare("SELECT * FROM course WHERE id = :id");
+          $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+          $stmt->execute();
+
+          $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+          if ($row) {
+               return self::createCourseFromRow($row); // Use the existing method to create a course object
+          } else {
+               return null; // Return null if no course is found
+          }
+     }
+     public static function checkEnrollment($courseId, $studentId)
+     {
+          $pdo = Database::getInstance()->getConnection();
+          $stmt = $pdo->prepare("
+        SELECT COUNT(*) 
+        FROM enroll 
+        WHERE student_id = :student_id AND course_id = :course_id
+    ");
+          $stmt->bindParam(':student_id', $studentId, PDO::PARAM_INT);
+          $stmt->bindParam(':course_id', $courseId, PDO::PARAM_INT);
+          $stmt->execute();
+
+          // Check if the count is greater than 0
+          return $stmt->fetchColumn() > 0;
+     }
 
      public static function enrollStudent($courseId, $studentId)
      {
           $pdo = Database::getInstance()->getConnection();
+
+          // Check if student exists
+          $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE id = :student_id");
+          $stmt->bindParam(':student_id', $studentId, PDO::PARAM_INT);
+          $stmt->execute();
+
+          if ($stmt->fetchColumn() == 0) {
+               throw new Exception("Student ID {$studentId} does not exist.");
+          }
+
+          // Proceed with enrollment
           $stmt = $pdo->prepare("INSERT INTO enroll (course_id, student_id) VALUES (:course_id, :student_id)");
           $stmt->bindParam(':course_id', $courseId, PDO::PARAM_INT);
           $stmt->bindParam(':student_id', $studentId, PDO::PARAM_INT);
@@ -109,6 +150,34 @@ abstract class Course
 
 
      // id , description , image , categorie_id,teacher_id,created_at
+
+     public static function getCoursesByStudentId($studentId)
+     {
+          try {
+               $pdo = Database::getInstance()->getConnection();
+               $stmt = $pdo->prepare("
+            SELECT c.* 
+            FROM course c
+            JOIN enroll e ON c.id = e.course_id
+            WHERE e.student_id = :student_id
+        ");
+               $stmt->bindParam(':student_id', $studentId, PDO::PARAM_INT);
+               $stmt->execute();
+
+               $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+               $courses = [];
+               foreach ($result as $row) {
+                    $courses[] = self::createCourseFromRow($row);
+               }
+
+               return $courses;
+          } catch (PDOException $e) {
+               error_log("Error fetching courses for student: " . $e->getMessage());
+               return [];
+          }
+     }
+
 
      // Method to get students enrolled in a course
      public static function getEnrolledStudents($courseId)

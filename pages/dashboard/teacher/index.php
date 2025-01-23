@@ -277,7 +277,7 @@ function handleVideo($teacher_id, $postData, $fileData, $imagePath)
             <button type="submit" class="submit-btn">Create Course</button>
         </form>
     </main>
-
+ 
     <script>
         document.getElementById("course-content").addEventListener("change", function() {
             const contentInputGroup = document.getElementById("content-input-group");

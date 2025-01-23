@@ -78,7 +78,21 @@ class Category
         }
     }
 
+    public static function getCategoryById($categoryId)
+    {
+        $pdo = Database::getInstance()->getConnection();
+        $stmt = $pdo->prepare("SELECT * FROM category WHERE id = :id");
+        $stmt->bindParam(':id', $categoryId, PDO::PARAM_INT);
+        $stmt->execute();
 
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            return new Category($row['id'], $row['name']);
+        } else {
+            return null; // Return null if no category is found
+        }
+    }
     // *******************************************
     // for admin 
     public static function delete($id)
